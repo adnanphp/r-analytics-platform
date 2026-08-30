@@ -1,0 +1,17 @@
+# render.yaml
+# Render.com deployment configuration
+
+services:
+  - type: web
+    name: r-analytics-platform
+    runtime: image
+    repo: https://github.com/yourusername/r-analytics-platform
+    plan: free
+    region: oregon
+    dockerfilePath: ./docker/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: R_CONFIG_ACTIVE
+        value: production
+      - key: PORT
+        value: 3838

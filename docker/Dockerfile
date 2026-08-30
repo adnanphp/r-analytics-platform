@@ -1,18 +1,11 @@
-# docker/Dockerfile.fast
-# Use pre-built image with tidyverse already installed
+FROM rocker/shiny:4.3.1
 
-FROM rocker/tidyverse:4.3.1
+RUN R -e "install.packages(c('shinydashboard', 'shinyWidgets', 'plotly', 'DT', 'viridis', 'rmarkdown'), repos='https://cloud.r-project.org')"
 
-# Install Shiny packages only
-RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyWidgets', 'plotly', 'DT'))"
+COPY shiny/ /srv/shiny-server/
+COPY data/ /srv/shiny-server/data/
+COPY models/ /srv/shiny-server/models/
 
-# Copy application
-COPY app/ /app/shiny/
-COPY data/ /app/data/
-COPY models/ /app/models/
+WORKDIR /srv/shiny-server
 
-WORKDIR /app
-
-EXPOSE 3838
-
-CMD ["R", "-e", "shiny::runApp('shiny/app.R', host = '0.0.0.0', port = 3838)"]
+CMD ["R", "-e", "shiny::runApp('app.R', host = '0.0.0.0', port = 3838)"]
