@@ -1,0 +1,30 @@
+---
+title: "Customer Churn Analysis Report"
+author: "Your Name"
+date: "`r Sys.Date()`"
+format: 
+  pdf:
+    toc: true
+    number-sections: true
+  html:
+    toc: true
+    toc_float: true
+    code_folding: show
+execute:
+  echo: false
+  warning: false
+  message: false
+params:
+  report_date: "2024-01-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(DT)
+library(kableExtra)
+
+# Load data
+data <- read_csv("../data/processed/processed_data.csv")
+models <- readRDS("../models/model_results.rds")
