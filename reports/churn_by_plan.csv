@@ -1,0 +1,4 @@
+plan_type,total_customers,churned_customers,churn_rate,avg_revenue,avg_usage,avg_engagement
+Basic,24885,24885,100,1222.22,249.38,0.019
+Enterprise,7564,7564,100,1232.49,250.51,0.019
+Premium,17551,17551,100,1263.87,249.62,0.019

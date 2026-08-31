@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Sun Aug 30 18:54:19 EDT 2026:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.16.1.1 - (1901046): instance a816c00e-01a0-54e1-809c-00000134eed8 
+on database directory /home/adnan/Music/3CCC_summer_2026_3_projects/1H_new_projects_07/r-analytics-platform/metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@76ed5528 
+Loaded from file:/home/adnan/anaconda3/lib/python3.12/site-packages/pyspark/jars/derby-10.16.1.1.jar
+java.vendor=Ubuntu
+java.runtime.version=21.0.11+10-1-24.04.2-Ubuntu
+user.dir=/home/adnan/Music/3CCC_summer_2026_3_projects/1H_new_projects_07/r-analytics-platform
+os.name=Linux
+os.arch=amd64
+os.version=7.0.0-29-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

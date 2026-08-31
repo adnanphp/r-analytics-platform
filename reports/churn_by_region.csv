@@ -1,0 +1,5 @@
+region,total_customers,churned_customers,churn_rate,avg_revenue
+East,12378,12378,100,1263.21
+North,15044,15044,100,1264.97
+South,12544,12544,100,1210.35
+West,10034,10034,100,1203.01
