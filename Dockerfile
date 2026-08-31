@@ -1,7 +1,21 @@
 FROM rocker/shiny:4.3.1
 
-RUN R -e "install.packages(c('shinydashboard', 'shinyWidgets', 'plotly', 'DT', 'viridis', 'rmarkdown'), repos='https://cloud.r-project.org')"
+# Install ALL required packages
+RUN R -e "install.packages(c(
+    'shiny',
+    'shinydashboard',
+    'shinyWidgets',
+    'tidyverse',
+    'ggplot2',
+    'plotly',
+    'DT',
+    'viridis',
+    'rmarkdown',
+    'lubridate',
+    'scales'
+), repos='https://cloud.r-project.org')"
 
+# Copy application
 COPY shiny/ /srv/shiny-server/
 COPY data/ /srv/shiny-server/data/
 COPY models/ /srv/shiny-server/models/
