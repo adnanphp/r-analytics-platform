@@ -2,39 +2,55 @@
 # Interactive Shiny Dashboard
 
 # ============================
-# LOAD ALL PACKAGES FIRST
+# LOAD PACKAGES
 # ============================
 
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
-library(tidyverse)      # This loads read_csv, dplyr, ggplot2, etc.
+library(tidyverse)
 library(ggplot2)
 library(plotly)
 library(DT)
 library(viridis)
 
 # ============================
-# SET WORKING DIRECTORY
+# SET CORRECT DATA PATH FOR RENDER
 # ============================
 
-# Set to project root (one level up from shiny folder)
-setwd(dirname(getwd()))
+# Get the directory where this script is running
+app_dir <- getwd()
 
-# Check if data exists
-if (!file.exists("data/processed/processed_data.csv")) {
-  stop("Error: data/processed/processed_data.csv not found!")
+# On Render, data is in /srv/shiny-server/data/
+# Locally, data is in ../data/ relative to shiny/ folder
+
+# Try multiple possible paths
+possible_paths <- c(
+  file.path(app_dir, "data", "processed", "processed_data.csv"),
+  file.path(app_dir, "..", "data", "processed", "processed_data.csv"),
+  file.path("/srv", "shiny-server", "data", "processed", "processed_data.csv"),
+  file.path("data", "processed", "processed_data.csv")
+)
+
+data_path <- NULL
+for (path in possible_paths) {
+  if (file.exists(path)) {
+    data_path <- path
+    break
+  }
 }
 
-if (!file.exists("models/model_results.rds")) {
-  warning("models/model_results.rds not found. Some features may be limited.")
+if (is.null(data_path)) {
+  stop("Error: processed_data.csv not found in any expected location!")
 }
+
+message(paste("Loading data from:", data_path))
 
 # ============================
 # LOAD DATA
 # ============================
 
-data <- read_csv("data/processed/processed_data.csv")
+data <- read_csv(data_path)
 
 # Convert churned to factor
 data <- data %>%
@@ -45,8 +61,18 @@ data <- data %>%
 
 # Load models if available
 models <- NULL
-if (file.exists("models/model_results.rds")) {
-  models <- readRDS("models/model_results.rds")
+models_paths <- c(
+  file.path(app_dir, "models", "model_results.rds"),
+  file.path(app_dir, "..", "models", "model_results.rds"),
+  file.path("/srv", "shiny-server", "models", "model_results.rds"),
+  file.path("models", "model_results.rds")
+)
+
+for (path in models_paths) {
+  if (file.exists(path)) {
+    models <- readRDS(path)
+    break
+  }
 }
 
 # ============================
@@ -280,7 +306,7 @@ server <- function(input, output, session) {
     if (!is.null(models) && !is.null(models$metrics)) {
       print(models$metrics)
     } else {
-      cat("Model metrics not available. Run r/04_modeling.R first.")
+      cat("Model metrics not available.")
     }
   })
   
@@ -289,7 +315,7 @@ server <- function(input, output, session) {
     if (!is.null(models) && !is.null(models$confusion_matrix)) {
       print(models$confusion_matrix)
     } else {
-      cat("Confusion matrix not available. Run r/04_modeling.R first.")
+      cat("Confusion matrix not available.")
     }
   })
   
@@ -306,7 +332,6 @@ server <- function(input, output, session) {
         theme_minimal()
       ggplotly(p)
     } else {
-      # Fallback: use data to show simple plot
       p <- ggplot(data, aes(x = days_since_activity, y = total_revenue, 
                             color = churned_factor)) +
         geom_point(alpha = 0.3) +
@@ -319,42 +344,32 @@ server <- function(input, output, session) {
   
   # Prediction
   observeEvent(input$predict_btn, {
-    # Simple risk calculation
     risk_score <- 0
     
-    # Age factor
     if (input$age > 50) risk_score <- risk_score + 10
     if (input$age < 25) risk_score <- risk_score + 5
     
-    # Plan factor
     if (input$plan == "Basic") risk_score <- risk_score + 20
     if (input$plan == "Premium") risk_score <- risk_score - 10
     if (input$plan == "Enterprise") risk_score <- risk_score - 15
     
-    # Region factor
     if (input$region == "West") risk_score <- risk_score + 10
     if (input$region == "North") risk_score <- risk_score - 5
     
-    # Usage factor
     if (input$usage < 100) risk_score <- risk_score + 20
     if (input$usage > 500) risk_score <- risk_score - 10
     
-    # Satisfaction factor
     if (input$satisfaction < 3) risk_score <- risk_score + 20
     if (input$satisfaction > 4) risk_score <- risk_score - 10
     
-    # Support tickets
     if (input$tickets > 5) risk_score <- risk_score + 15
     if (input$tickets > 10) risk_score <- risk_score + 10
     
-    # Revenue factor
     if (input$revenue < 500) risk_score <- risk_score + 10
     if (input$revenue > 2000) risk_score <- risk_score - 10
     
-    # Normalize
     risk <- min(max(risk_score, 0), 100)
     
-    # Determine risk level
     risk_level <- ifelse(risk > 70, "🔴 High Risk", 
                          ifelse(risk > 40, "🟡 Medium Risk", "🟢 Low Risk"))
     
